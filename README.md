@@ -76,6 +76,38 @@ The API will start at `http://127.0.0.1:8000`
 
 ---
 
+## 🤖 Telegram Bot Mode
+
+Selain REST API, bot juga bisa dikontrol via Telegram commands!
+
+### Run Telegram Bot
+
+**Option A:** Double-click `run_telegram.bat`
+
+**Option B:** Run manually:
+
+```bash
+python telegram_bot.py
+```
+
+### Available Commands
+
+| Command | Description |
+|---------|-------------|
+| `/start` | Memulai bot & lihat menu |
+| `/status` | Lihat status bot, followers, following |
+| `/clean` | **Cleanup following** - Unfollow non-followers, stop farming, lalu lanjut farming setelah selesai |
+| `/farm` | Mulai farming followers |
+| `/stop` | Hentikan semua proses |
+| `/help` | Bantuan & panduan |
+
+> **Note:** Command `/clean` akan:
+> 1. Menghentikan farming (jika sedang berjalan)
+> 2. Membersihkan following (unfollow semua non-followers)
+> 3. Melanjutkan farming kembali setelah cleanup selesai
+
+---
+
 ## 📖 API Documentation
 
 ### Interactive Docs
@@ -168,10 +200,12 @@ If you suspect a token leak, [revoke it immediately](https://github.com/settings
 .
 ├── api.py              # FastAPI application & endpoints
 ├── core.py             # Bot logic (follow, farm, cleanup)
+├── telegram_bot.py     # Telegram bot handler & commands
 ├── requirements.txt    # Python dependencies
 ├── .env.example        # Environment template
 ├── config.example.json # Bot configuration template
-├── run_api.bat         # Windows startup script
+├── run_api.bat         # Windows startup script (API mode)
+├── run_telegram.bat    # Windows startup script (Telegram mode)
 ├── .gitignore          # Git exclusions
 └── README.md           # This file
 ```

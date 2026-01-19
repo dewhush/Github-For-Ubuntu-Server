@@ -1,20 +1,8 @@
-# Secrets
-.env
-.env.local
-*.key
-*.pem
-
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.log
-
-# Stats & Private Data
-config.json
-followers.json
-starred_repos.json
-*_stats.json
 
 # IDE
 .vscode/
