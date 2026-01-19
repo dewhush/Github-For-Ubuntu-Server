@@ -2,8 +2,28 @@
 __pycache__/
 *.py[cod]
 *$py.class
+venv/
+.venv/
+
+# Logs
 *.log
 
 # IDE
 .vscode/
 .idea/
+
+# Environment & Secrets (CRITICAL - DO NOT REMOVE)
+.env
+config.json
+deploy.bat
+
+# Data files (contain user tracking info)
+followers.json
+farming_stats.json
+cleanup_stats.json
+starred_repos.json
+star_stats.json
+
+# Keep example files
+!.env.example
+!config.example.json

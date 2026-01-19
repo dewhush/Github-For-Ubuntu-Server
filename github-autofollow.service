@@ -1,0 +1,24 @@
+[Unit]
+Description=Github Auto Follow Bot Service
+After=network.target
+
+[Service]
+# User yang menjalankan service
+User=dewhush
+Group=dewhush
+
+# Direktori kerja script (sesuaikan dengan REMOTE_DIR di deploy.bat)
+WorkingDirectory=/home/dewhush/Github-Followers-API
+
+# Command untuk menjalankan bot
+ExecStart=/bin/bash /home/dewhush/Github-Followers-API/start.sh
+
+# Restart otomatis jika crash
+Restart=always
+RestartSec=10
+
+# Environment variables jika diperlukan (opsional, bisa load dari file juga)
+EnvironmentFile=/home/dewhush/Github-Followers-API/.env
+
+[Install]
+WantedBy=multi-user.target

@@ -8,6 +8,7 @@ Created by: dewhush
 from fastapi import FastAPI, BackgroundTasks, HTTPException, Depends, Security
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel
+from contextlib import asynccontextmanager
 import asyncio
 import logging
 import os
@@ -38,18 +39,53 @@ async def verify_api_key(api_key: str = Security(api_key_header)):
         )
     return True
 
-# Setup App
+# Global State (moved before lifespan)
+bot: Optional[GitHubFollowerBot] = None
+is_running = False
+
+# ASCII Banner
+BANNER = """
+   _____ _ _   _           _       ______    _ _                            
+  / ____(_) | | |         | |     |  ____|  | | |                           
+ | |  __ _| |_| |__  _   _| |__   | |__ ___ | | | _____      _____ _ __ ___ 
+ | | |_ | | __| '_ \\| | | | '_ \\  |  __/ _ \\| | |/ _ \\ \\ /\\ / / _ \\ '__/ __|
+ | |__| | | |_| | | | |_| | |_) | | | | (_) | | | (_) \\ V  V /  __/ |  \\__ \\
+  \\_____|_|\\__|_| |_|\\__,_|_.__/  |_|  \\___/|_|_|\\___/ \\_/\\_/ \\___|_|  |___/
+                                                                            
+                    ✨ Created by: dewhush ✨
+"""
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for startup/shutdown"""
+    global bot
+    # Startup
+    print(BANNER)
+    print(f"  📦 App: {APP_NAME}")
+    print(f"  🌍 Environment: {APP_ENV}")
+    print(f"  🔐 API Key Protection: {'Enabled' if API_KEY else 'Disabled'}")
+    print()
+    
+    try:
+        bot = GitHubFollowerBot()
+        logging.info(f"✅ Bot initialized successfully")
+    except Exception as e:
+        logging.error(f"❌ Failed to initialize bot: {e}")
+    
+    yield  # App is running
+    
+    # Shutdown (cleanup if needed)
+    logging.info("🛑 Shutting down...")
+
+# Setup App with lifespan
 app = FastAPI(
     title=APP_NAME,
     description="🚀 Secure REST API for GitHub Follower Farming & Management",
     version="2.0.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=lifespan
 )
-
-# Global State
-bot: Optional[GitHubFollowerBot] = None
-is_running = False
 
 # Response Models
 class HealthResponse(BaseModel):
@@ -71,34 +107,6 @@ class ConfigResponse(BaseModel):
 class MessageResponse(BaseModel):
     message: str
     success: bool = True
-
-# ASCII Banner
-BANNER = """
-   _____ _ _   _           _       ______    _ _                            
-  / ____(_) | | |         | |     |  ____|  | | |                           
- | |  __ _| |_| |__  _   _| |__   | |__ ___ | | | _____      _____ _ __ ___ 
- | | |_ | | __| '_ \\| | | | '_ \\  |  __/ _ \\| | |/ _ \\ \\ /\\ / / _ \\ '__/ __|
- | |__| | | |_| | | | |_| | |_) | | | | (_) | | | (_) \\ V  V /  __/ |  \\__ \\
-  \\_____|_|\\__|_| |_|\\__,_|_.__/  |_|  \\___/|_|_|\\___/ \\_/\\_/ \\___|_|  |___/
-                                                                            
-                    ✨ Created by: dewhush ✨
-"""
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize bot on startup"""
-    print(BANNER)
-    print(f"  📦 App: {APP_NAME}")
-    print(f"  🌍 Environment: {APP_ENV}")
-    print(f"  🔐 API Key Protection: {'Enabled' if API_KEY else 'Disabled'}")
-    print()
-    
-    global bot
-    try:
-        bot = GitHubFollowerBot()
-        logging.info(f"✅ Bot initialized successfully")
-    except Exception as e:
-        logging.error(f"❌ Failed to initialize bot: {e}")
 
 # ============== Public Endpoints ==============
 
